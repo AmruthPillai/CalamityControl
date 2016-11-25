@@ -1,0 +1,67 @@
+<div class="container">
+	<p>&nbsp;</p>
+	<img id="cclogo" class="img-responsive center-block" src="{{ cclogo }}" width="256px">
+	<p>&nbsp;</p>
+	<div class="row">
+		<div class="col-md-3"></div>
+		<div class="col-md-6">
+			<input type="text" class="form-control" placeholder="Enter Location" ng-model="location" ng-keypress="">
+			<br>
+			<a id="submit" class="btn btn-danger btn-block" href="#calamity/{{ location }}">Submit</a>
+		</div>
+	</div>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			<a id="report" class="btn btn-primary btn-block" data-toggle="modal" data-target="#reportModal" ng-click="getLocation();">Report</a>
+		</div>
+	</div>
+</div>
+
+<div id="reportModal" class="modal fade" role="dialog">
+  <form name="reportForm">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Report Calamity</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="row">
+      		<div class="col-md-2"></div>
+	      	<div class="col-md-8">
+	      		<div class="form-group">
+	      			<label class="control-label" for="report_type">Type of Calamity</label>
+	      			<select class="form-control" id="report_type" name="report_type" ng-model="report.type" required>
+	      				<option value="">Select</option>
+								<option>Earthquake</option>
+								<option>Tsunami</option>
+								<option>Cyclone</option>
+								<option>Hurricane</option>
+								<option>Tornado</option>
+								<option>Floods</option>
+								<option>Drought</option>
+								<option>Others</option>
+			        </select>
+	      		</div>
+	      		<hr>
+	      		<div class="form-group">
+	      			<label class="control-label" for="report_address">Address</label>
+	      			<textarea style="height: 100px;" class="form-control" id="report_address" ng-model="report.address" name="report_address" placeholder="Address"></textarea>
+	      			<span class="help-block">Please allow location sharing information to help us retrieve your exact address/location.</span>
+	      		</div>
+
+	      	</div>
+	      	<div class="col-md-2"></div>
+      	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" ng-click="reportCalamity()" ng-disabled="reportForm.$invalid">Report</button>
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
