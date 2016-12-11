@@ -132,8 +132,9 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 		    }
 		});
 
-		myDataRef.on('child_added', function(snapshot) {
+		ref.on('child_added', function(snapshot) {
 			snapshot = snapshot.val();
+			console.log(snapshot);
 			var latLng = new google.maps.LatLng(snapshot.lat, snapshot.lng);
 			arLatLng.push(latLng);
 
@@ -168,4 +169,8 @@ ccApp.controller('VolunteerController', function($scope, $firebaseArray) {
 		list.$add($scope.volunteer);
 		$('#volunteerModal').modal('toggle');
 	};
+});
+
+ccApp.controller('EmergencyContactController', function($scope, $firebaseArray) {
+
 });
