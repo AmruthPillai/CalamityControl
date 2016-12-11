@@ -77,17 +77,15 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 	var list = new $firebaseArray(ref);
 
 	$scope.reportCalamity = function() {
-		$scope.report.type = $('#report_type').val();
-		$scope.report.address = $('#report_address').val();
+		$scope.report.calamity = $('#report_type').val();
 
 		var geocoder = new google.maps.Geocoder();
 		geocoder.geocode( { "address": $scope.report.address }, function(results, status) {
 		    if (status == google.maps.GeocoderStatus.OK && results.length > 0) {
 		    	console.log('uploading lat lng');
-		    	$scope.report.location = {};
 
-        	$scope.report.location.lat = results[0].geometry.location.lat();
-        	$scope.report.location.lng = results[0].geometry.location.lng();
+        	$scope.report.lat = results[0].geometry.location.lat();
+        	$scope.report.lng = results[0].geometry.location.lng();
 
         	list.$add($scope.report);
 					$scope.list = list;
