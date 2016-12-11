@@ -80,7 +80,7 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 		$scope.report.calamity = $('#report_type').val();
 
 		var geocoder = new google.maps.Geocoder();
-		geocoder.geocode( { "address": $scope.report.address }, function(results, status) {
+		geocoder.geocode( { "address": $scope.address }, function(results, status) {
 		    if (status == google.maps.GeocoderStatus.OK && results.length > 0) {
 		    	console.log('uploading lat lng');
 
