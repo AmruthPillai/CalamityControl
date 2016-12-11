@@ -1,6 +1,6 @@
 var ccApp = angular.module('ccApp', ['ngRoute', 'firebase']);
 
-var myDataRef = firebase.database().ref().child('reports');
+var myDataRef = firebase.database().ref();
 
 ccApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
@@ -10,6 +10,18 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 	}).
 	when('/calamity', {
 		redirectTo: '/home'
+	}).
+	when('/calamity/donate', {
+		templateUrl: 'templates/donate.html',
+		controller: 'DonationController'
+	}).
+	when('/calamity/volunteer', {
+		templateUrl: 'templates/volunteer.html',
+		controller: 'VolunteerController'
+	}).
+	when('/calamity/contact', {
+		templateUrl: 'templates/contact.html',
+		controller: 'EmergencyContactController'
 	}).
 	when('/calamity/:location', {
 		templateUrl: 'templates/calamity.html',
@@ -61,7 +73,7 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 		}
 	};
 
-	var ref = firebase.database().ref().child("reports");
+	var ref = myDataRef.child("reports");
 	var list = new $firebaseArray(ref);
 
 	$scope.reportCalamity = function() {
@@ -74,13 +86,13 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 		    	console.log('uploading lat lng');
 		    	$scope.report.location = {};
 
-		        $scope.report.location.lat = results[0].geometry.location.lat();
-		        $scope.report.location.lng = results[0].geometry.location.lng();
+        	$scope.report.location.lat = results[0].geometry.location.lat();
+        	$scope.report.location.lng = results[0].geometry.location.lng();
 
-		        list.$add($scope.report);
-				$scope.list = list;
+        	list.$add($scope.report);
+					$scope.list = list;
 
-				$('#reportModal').modal('toggle');
+					$('#reportModal').modal('toggle');
 		    } else {
 		    	console.log('not getting lat lng');
 		    }
@@ -93,7 +105,10 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 **/
 ccApp.controller('CalamityController', function($scope, $routeParams, $http, $firebaseArray) {
 	$scope.rep_count = 0;
-	$scope.reports = $firebaseArray(myDataRef);
+
+	var ref = myDataRef.child("reports");
+	$scope.reports = $firebaseArray(ref);
+
 	var arLatLng = [];
 
 	$scope.location = $routeParams.location.toLowerCase().replace(/\b[a-z]/g, function(letter) {
@@ -102,7 +117,7 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 
 	$scope.initialize = function() {
 		var geocoder = new google.maps.Geocoder();
-		var mapOptions = { zoom: 10 };
+		var mapOptions = { zoom: 6 };
 		var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
 		geocoder.geocode( { "address": $scope.location }, function(results, status) {
@@ -119,46 +134,38 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 
 		myDataRef.on('child_added', function(snapshot) {
 			snapshot = snapshot.val();
-			var latLng = new google.maps.LatLng(snapshot.location.lat, snapshot.location.lng);
+			var latLng = new google.maps.LatLng(snapshot.lat, snapshot.lng);
 			arLatLng.push(latLng);
-			// var marker = new google.maps.Marker({
-			// 				position: latLng,
-			// 				map: map
-			// 		});
-			// var infowindow = new google.maps.InfoWindow({
-			// 			content: '<strong>Address:</strong> ' + snapshot.address + '<br>' + '<strong>Type:</strong> ' + snapshot.type
-			// 		});
-			// marker.addListener('click', function() {
-			// 	infowindow.open(map, marker);
-			// });
+
 			$scope.rep_count += 1;
 			var heatmap = new google.maps.visualization.HeatmapLayer({
           data: arLatLng,
           map: map
         });
 		});
-    }
+  }
+});
 
-    var headers = {
-			headers: {
-				'Ocp-Apim-Subscription-Key': '6d9f6ab57e95463d811301c01b28f033',
-				'Access-Control-Allow-Origin': '*'
-			}
-		};
+ccApp.controller('DonationController', function($scope, $firebaseArray) {
+	var ref = myDataRef.child("donations");
+	var list = new $firebaseArray(ref);
+	$scope.donors = $firebaseArray(ref);
+	$scope.donor = {};
 
-		$scope.latest_news = [];
+	$scope.donate = function() {
+		list.$add($scope.donor);
+		$('#donateModal').modal('toggle');
+	};
+});
 
-    $http.get('https://api.cognitive.microsoft.com/bing/v5.0/news/search?q=' + $scope.location + '&count=5&offset=0&mkt=en-us&safeSearch=Moderate', headers).
-	    success(function(data, status, headers, config) {
-	    	$.each(data.value, function(k, v) {
-	    		$scope.latest_news.push({
-	    			name: v.name,
-	    			url: v.url,
-	    			provider: v.provider[0].name
-	    		});
-	    	});
-	    }).
-	    error(function(data, status, headers, config) {
-    		// log error
-	    });
+ccApp.controller('VolunteerController', function($scope, $firebaseArray) {
+	var ref = myDataRef.child("volunteers");
+	var list = new $firebaseArray(ref);
+	$scope.volunteers = $firebaseArray(ref);
+	$scope.volunteer = {};
+
+	$scope.volunteerRegistration = function() {
+		list.$add($scope.volunteer);
+		$('#volunteerModal').modal('toggle');
+	};
 });
