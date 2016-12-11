@@ -73,20 +73,18 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 		}
 	};
 
-	var ref = myDataRef.child("reports");
-	var list = new $firebaseArray(ref);
-
 	$scope.reportCalamity = function() {
-		$scope.report.calamity = $('#report_type').val();
+		var ref = firebase.database().ref().child("reports");
+		var list = new $firebaseArray(ref);
+
+		$scope.report.calamity = $('#report_calamity').val();
 
 		var currentdate = new Date();
-		var $scope.report.time = currentdate.getDate() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+		$scope.report.time = currentdate.getDate() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
 
 		var geocoder = new google.maps.Geocoder();
 		geocoder.geocode( { "address": $scope.address }, function(results, status) {
 		    if (status == google.maps.GeocoderStatus.OK && results.length > 0) {
-		    	console.log('uploading lat lng');
-
         	$scope.report.lat = results[0].geometry.location.lat();
         	$scope.report.lng = results[0].geometry.location.lng();
 
