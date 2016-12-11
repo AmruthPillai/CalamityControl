@@ -79,6 +79,14 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 	$scope.reportCalamity = function() {
 		$scope.report.calamity = $('#report_type').val();
 
+		var currentdate = new Date();
+		var $scope.report.time = currentdate.getDate() + "-"
+                + (currentdate.getMonth()+1)  + "-"
+                + currentdate.getFullYear() + " "
+                + currentdate.getHours() + ":"
+                + currentdate.getMinutes() + ":"
+                + currentdate.getSeconds();
+
 		var geocoder = new google.maps.Geocoder();
 		geocoder.geocode( { "address": $scope.address }, function(results, status) {
 		    if (status == google.maps.GeocoderStatus.OK && results.length > 0) {
