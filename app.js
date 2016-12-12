@@ -1,6 +1,8 @@
 var ccApp = angular.module('ccApp', ['ngRoute', 'firebase']);
 
-var myDataRef = firebase.database().ref();
+var reportsRef = firebase.database().ref().child("reports");
+var donationsRef = firebase.database().ref().child("donations");
+var volunteersRef = firebase.database().ref().child("volunteers");
 
 ccApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
@@ -14,6 +16,10 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 	when('/calamity/donate', {
 		templateUrl: 'templates/donate.html',
 		controller: 'DonationController'
+	}).
+	when('/calamity/reports', {
+		templateUrl: 'templates/reports.html',
+		controller: 'ReportsController'
 	}).
 	when('/calamity/volunteer', {
 		templateUrl: 'templates/volunteer.html',
@@ -36,12 +42,10 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 	HomeController
 **/
 ccApp.controller('HomeController', function($scope, $firebaseArray) {
-	$scope.cclogo = 'assets/cclogo.png';
 	$scope.report = {};
 
 	$scope.reportCalamity = function() {
-		var ref = firebase.database().ref().child("reports");
-		var list = new $firebaseArray(ref);
+		var list = new $firebaseArray(reportsRef);
 
 		$scope.report.calamity = $('#report_calamity').val();
 		$scope.report.condition = parseInt( $('#report_condition').val() );
@@ -79,9 +83,7 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 **/
 ccApp.controller('CalamityController', function($scope, $routeParams, $http, $firebaseArray) {
 	$scope.rep_count = 0;
-
-	var ref = myDataRef.child("reports");
-	$scope.reports = $firebaseArray(ref);
+	$scope.reports = $firebaseArray(reportsRef);
 
 	var arLatLng = [];
 
@@ -91,7 +93,7 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 
 	$scope.initialize = function() {
 		var geocoder = new google.maps.Geocoder();
-		var mapOptions = { zoom: 6 };
+		var mapOptions = { zoom: 10 };
 		var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
 		geocoder.geocode( { "address": $scope.location }, function(results, status) {
@@ -106,25 +108,24 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 		    }
 		});
 
-		ref.on('child_added', function(snapshot) {
+		reportsRef.on('child_added', function(snapshot) {
 			snapshot = snapshot.val();
-			console.log(snapshot);
 			var latLng = new google.maps.LatLng(snapshot.lat, snapshot.lng);
 			arLatLng.push(latLng);
 
 			$scope.rep_count += 1;
+
 			var heatmap = new google.maps.visualization.HeatmapLayer({
-          data: arLatLng,
-          map: map
-        });
+	          data: arLatLng,
+	          map: map
+	        });
 		});
   }
 });
 
 ccApp.controller('DonationController', function($scope, $firebaseArray) {
-	var ref = myDataRef.child("donations");
-	var list = new $firebaseArray(ref);
-	$scope.donors = $firebaseArray(ref);
+	var list = new $firebaseArray(donationsRef);
+	$scope.donors = $firebaseArray(donationsRef);
 	$scope.donor = {};
 
 	$scope.donate = function() {
@@ -134,9 +135,8 @@ ccApp.controller('DonationController', function($scope, $firebaseArray) {
 });
 
 ccApp.controller('VolunteerController', function($scope, $firebaseArray) {
-	var ref = myDataRef.child("volunteers");
-	var list = new $firebaseArray(ref);
-	$scope.volunteers = $firebaseArray(ref);
+	var list = new $firebaseArray(volunteersRef);
+	$scope.volunteers = $firebaseArray(volunteersRef);
 	$scope.volunteer = {};
 
 	$scope.volunteerRegistration = function() {
@@ -145,6 +145,15 @@ ccApp.controller('VolunteerController', function($scope, $firebaseArray) {
 	};
 });
 
-ccApp.controller('EmergencyContactController', function($scope, $firebaseArray) {
+ccApp.controller('EmergencyContactController', function($scope) {
 
+});
+
+ccApp.controller('ReportsController', function($scope, $firebaseArray) {
+	$scope.reports = $firebaseArray(reportsRef);
+	$scope.rep_count = 0;
+
+	reportsRef.on('child_added', function(snapshot) {
+		$scope.rep_count += 1;
+	});
 });
