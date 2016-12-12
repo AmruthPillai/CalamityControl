@@ -43,6 +43,7 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 		var ref = firebase.database().ref().child("reports");
 		var list = new $firebaseArray(ref);
 
+		$scope.report.calamity = $('#report_calamity').val();
 		$scope.report.condition = parseInt( $('#report_condition').val() );
 
 		var currentdate = new Date();

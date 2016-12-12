@@ -32,10 +32,18 @@
       	<div class="row">
       		<div class="col-md-2"></div>
 	      	<div class="col-md-8">
+				<div class="form-group">
+	      			<label class="control-label" for="report_type">Type of Calamity</label>
+	      			<select class="form-control" id="report_type" name="report_type" ng-model="report.type" required>
+						<option value="">Select Calamity</option>
+						<option>Cyclone</option>
+						<option>Others</option>
+			        </select>
+	      		</div>
 	      		<div class="form-group">
 	      			<label class="control-label" for="report_condition">Condition of Calamity <small>(required)</small></label>
 	      			<select class="form-control" id="report_condition" name="report_condition" ng-model="report.condition" required>
-	      				<option value="">Select</option>
+	      				<option value="">Select Level</option>
 						<option>1 (I'm Safe!)</option>
 						<option>2</option>
 						<option>3</option>
