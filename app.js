@@ -39,62 +39,36 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 	$scope.cclogo = 'assets/cclogo.png';
 	$scope.report = {};
 
-	$scope.getLocation = function() {
-		var options = {
-			enableHighAccuracy: true,
-			timeout: 5000,
-			maximumAge: 0
-		};
-
-		function success(position) {
-			var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
-			var geocoder = new google.maps.Geocoder();
-		    geocoder.geocode({ 'latLng': latlng }, function (results, status) {
-		        if (status !== google.maps.GeocoderStatus.OK) {
-		            alert(status);
-		        }
-		        if (status == google.maps.GeocoderStatus.OK) {
-		            var address = (results[0].formatted_address);
-		            $('#report_address').val(address);
-		        }
-		    });
-		};
-
-		function error(err) {
-			alert('We are not able to get your location automatically, please enter it manually.');
-			console.warn('ERROR(' + err.code + '): ' + err.message);
-		};
-
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(success, error, options);
-		} else {
-			alert('We are not able to get your location automatically, please enter it manually.');
-		}
-	};
-
 	$scope.reportCalamity = function() {
 		var ref = firebase.database().ref().child("reports");
 		var list = new $firebaseArray(ref);
 
-		$scope.report.calamity = $('#report_calamity').val();
+		$scope.report.condition = parseInt( $('#report_condition').val() );
 
 		var currentdate = new Date();
 		$scope.report.time = currentdate.getDate() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
 
+		var address = $('#report_area').val() + ", " + $('#report_city').val();
+		console.log(address);
+
 		var geocoder = new google.maps.Geocoder();
-		geocoder.geocode( { "address": $scope.address }, function(results, status) {
-		    if (status == google.maps.GeocoderStatus.OK && results.length > 0) {
-        	$scope.report.lat = results[0].geometry.location.lat();
-        	$scope.report.lng = results[0].geometry.location.lng();
+		geocoder.geocode( { "address": address }, function(result, status) {
+		    if (status == google.maps.GeocoderStatus.OK && result.length > 0) {
+	        	$scope.report.lat = result[0].geometry.location.lat();
+	        	$scope.report.lng = result[0].geometry.location.lng();
 
-        	list.$add($scope.report);
-					$scope.list = list;
+				console.log('We got the lat|lng!');
+	        	list.$add($scope.report);
+				$scope.list = list;
 
-					$('#reportModal').modal('toggle');
+				$('#reportModal').modal('toggle');
 		    } else {
-		    	console.log('not getting lat lng');
-		    }
+				console.log('We don\'t got the lat|lng!');
+				list.$add($scope.report);
+				$scope.list = list;
+
+				$('#reportModal').modal('toggle');
+			}
 		});
 	};
 });

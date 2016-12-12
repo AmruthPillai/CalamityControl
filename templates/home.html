@@ -7,7 +7,7 @@
 		<div class="col-md-6">
 			<input type="text" class="form-control" placeholder="Enter Location" ng-model="location" ng-keypress="">
 			<br>
-			<a id="submit" class="btn btn-danger btn-block" href="#calamity/{{ location }}">Submit</a>
+			<a id="submit" class="btn btn-danger btn-block" href="#calamity/{{ location }}">SEARCH</a>
 		</div>
 	</div>
 	<p>&nbsp;</p>
@@ -15,7 +15,7 @@
 	<div class="row">
 		<div class="col-md-4"></div>
 		<div class="col-md-4">
-			<a id="report" class="btn btn-primary btn-block" data-toggle="modal" data-target="#reportModal" ng-click="getLocation();">Report</a>
+			<a id="report" class="btn btn-primary btn-block" data-toggle="modal" data-target="#reportModal">Report</a>
 		</div>
 	</div>
 </div>
@@ -33,24 +33,32 @@
       		<div class="col-md-2"></div>
 	      	<div class="col-md-8">
 	      		<div class="form-group">
-	      			<label class="control-label" for="report_calamity">Type of Calamity</label>
-	      			<select class="form-control" id="report_calamity" name="report_calamity" ng-model="report.calamity" required>
+	      			<label class="control-label" for="report_condition">Condition of Calamity <small>(required)</small></label>
+	      			<select class="form-control" id="report_condition" name="report_condition" ng-model="report.condition" required>
 	      				<option value="">Select</option>
-								<option>Earthquake</option>
-								<option>Tsunami</option>
-								<option>Cyclone</option>
-								<option>Hurricane</option>
-								<option>Tornado</option>
-								<option>Floods</option>
-								<option>Drought</option>
-								<option>Others</option>
+						<option>1 (I'm Safe!)</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5 (I'm in Danger!)</option>
 			        </select>
 	      		</div>
-	      		<hr>
 	      		<div class="form-group">
-	      			<label class="control-label" for="report_address">Address</label>
-	      			<textarea style="height: 100px;" class="form-control" id="report_address" ng-model="address" name="report_address" placeholder="Address"></textarea>
-	      			<span class="help-block">Please allow location sharing information to help us retrieve your exact address/location.</span>
+	      			<label class="control-label" for="report_area">Area <small>(required)</small></label>
+	      			<input type="name" class="form-control" id="report_area" ng-model="report.area" name="report_area" placeholder="Area" required>
+	      		</div>
+				<div class="form-group">
+	      			<label class="control-label" for="report_city">City/Town <small>(required)</small></label>
+	      			<input type="name" class="form-control" id="report_city" ng-model="report.city" name="report_city" placeholder="City/Town"/>
+	      		</div>
+				<div class="form-group">
+	      			<label class="control-label" for="report_landmark">Landmark</label>
+	      			<input type="name" class="form-control" id="report_landmark" ng-model="report.landmark" name="report_landmark" placeholder="Landmark"/>
+	      		</div>
+				<div class="form-group">
+	      			<label class="control-label" for="report_phone">Phone Number</label>
+	      			<input type="tel" class="form-control" id="report_phone" ng-model="report.phone" name="report_phone" placeholder="Phone Number"/>
+					<span class="help-block">This information would be shared publicly, to help contact you in distress. <b>It's optional to share your contact information.<b></span>
 	      		</div>
 	      	</div>
 	      	<div class="col-md-2"></div>
