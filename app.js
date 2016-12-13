@@ -3,6 +3,7 @@ var ccApp = angular.module('ccApp', ['ngRoute', 'firebase']);
 var reportsRef = firebase.database().ref().child("reports");
 var donationsRef = firebase.database().ref().child("donations");
 var volunteersRef = firebase.database().ref().child("volunteers");
+
 var imageStorageRef = firebase.storage().ref().child("images");
 
 ccApp.config(['$routeProvider', function($routeProvider) {
@@ -44,15 +45,16 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 **/
 ccApp.controller('HomeController', function($scope, $firebaseArray) {
 	$scope.report = {};
-	var reportsArray = $firebaseArray(reportsRef);
+
+	var list = $firebaseArray(reportsRef);
 
 	$scope.reportCalamity = function() {
-		$scope.report.calamity = $('#report_calamity').val();
+		$scope.report.calamity = $('#report_type').val();
 		$scope.report.condition = parseInt( $('#report_condition').val() );
 
 		var currentdate = new Date();
 		$scope.report.time = currentdate.getDate() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
-		// $scope.report.timestamp = firebase.database.ServerValue.TIMESTAMP;
+		$scope.report.timestamp = firebase.database.ServerValue.TIMESTAMP;
 
 		var address = $('#report_area').val() + ", " + $('#report_city').val();
 
@@ -62,23 +64,16 @@ ccApp.controller('HomeController', function($scope, $firebaseArray) {
 					$scope.report.lat = result[0].geometry.location.lat();
 					$scope.report.lng = result[0].geometry.location.lng();
 
-					console.log('We got the lat|lng!');
-
-					reportsArray.$add($scope.report).then(function(ref) {
-						console.log(ref.key());
+					list.$add($scope.report).then(function() {
+						$('#reportModal').modal('toggle');
 					});
-
-					$('#reportModal').modal('toggle');
 		    } else {
-					console.log('We don\'t got the lat|lng!');
-
-					reportsArray.$add($scope.report).then(function(ref) {
-						console.log(ref.key());
+					list.$add($scope.report).then(function(ref) {
+						$('#reportModal').modal('toggle');
 					});
-
-					$('#reportModal').modal('toggle');
 			}
 		});
+
 	};
 });
 
