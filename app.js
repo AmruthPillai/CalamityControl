@@ -6,6 +6,8 @@ var volunteersRef = firebase.database().ref().child("volunteers");
 
 var imageStorageRef = firebase.storage().ref().child("images");
 
+document.addEventListener("touchmove", function(e) { e.preventDefault() });
+
 ccApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
 	when('/home', {
