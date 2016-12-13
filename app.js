@@ -3,6 +3,7 @@ var ccApp = angular.module('ccApp', ['ngRoute', 'firebase']);
 var reportsRef = firebase.database().ref().child("reports");
 var donationsRef = firebase.database().ref().child("donations");
 var volunteersRef = firebase.database().ref().child("volunteers");
+var imageStorageRef = firebase.storage().ref().child("images");
 
 ccApp.config(['$routeProvider', function($routeProvider) {
 	$routeProvider.
@@ -17,9 +18,9 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'templates/donate.html',
 		controller: 'DonationController'
 	}).
-	when('/calamity/reports', {
-		templateUrl: 'templates/reports.html',
-		controller: 'ReportsController'
+	when('/calamity/timeline', {
+		templateUrl: 'templates/timeline.html',
+		controller: 'TimelineController'
 	}).
 	when('/calamity/volunteer', {
 		templateUrl: 'templates/volunteer.html',
@@ -43,40 +44,47 @@ ccApp.config(['$routeProvider', function($routeProvider) {
 **/
 ccApp.controller('HomeController', function($scope, $firebaseArray) {
 	$scope.report = {};
+	var reportsArray = $firebaseArray(reportsRef);
 
 	$scope.reportCalamity = function() {
-		var list = new $firebaseArray(reportsRef);
-
 		$scope.report.calamity = $('#report_calamity').val();
 		$scope.report.condition = parseInt( $('#report_condition').val() );
 
 		var currentdate = new Date();
 		$scope.report.time = currentdate.getDate() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+		// $scope.report.timestamp = firebase.database.ServerValue.TIMESTAMP;
 
 		var address = $('#report_area').val() + ", " + $('#report_city').val();
-		console.log(address);
 
 		var geocoder = new google.maps.Geocoder();
 		geocoder.geocode( { "address": address }, function(result, status) {
 		    if (status == google.maps.GeocoderStatus.OK && result.length > 0) {
-	        	$scope.report.lat = result[0].geometry.location.lat();
-	        	$scope.report.lng = result[0].geometry.location.lng();
+					$scope.report.lat = result[0].geometry.location.lat();
+					$scope.report.lng = result[0].geometry.location.lng();
 
-				console.log('We got the lat|lng!');
-	        	list.$add($scope.report);
-				$scope.list = list;
+					console.log('We got the lat|lng!');
 
-				$('#reportModal').modal('toggle');
+					reportsArray.$add($scope.report).then(function(ref) {
+						console.log(ref.key());
+					});
+
+					$('#reportModal').modal('toggle');
 		    } else {
-				console.log('We don\'t got the lat|lng!');
-				list.$add($scope.report);
-				$scope.list = list;
+					console.log('We don\'t got the lat|lng!');
 
-				$('#reportModal').modal('toggle');
+					reportsArray.$add($scope.report).then(function(ref) {
+						console.log(ref.key());
+					});
+
+					$('#reportModal').modal('toggle');
 			}
 		});
 	};
 });
+
+function randomIntFromInterval(min, max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
 
 /**
 	CalamityController
@@ -85,6 +93,7 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 	$scope.rep_count = 0;
 	$scope.reports = $firebaseArray(reportsRef);
 
+	var heatMapData = [];
 	var arLatLng = [];
 
 	$scope.location = $routeParams.location.toLowerCase().replace(/\b[a-z]/g, function(letter) {
@@ -110,18 +119,27 @@ ccApp.controller('CalamityController', function($scope, $routeParams, $http, $fi
 
 		reportsRef.on('child_added', function(snapshot) {
 			snapshot = snapshot.val();
+
 			var latLng = new google.maps.LatLng(snapshot.lat, snapshot.lng);
-			arLatLng.push(latLng);
+			var intensity = randomIntFromInterval(1, 5);
+
+			heatMapData.push({
+				location: latLng,
+				weight: intensity
+			});
 
 			$scope.rep_count += 1;
 
-			var heatmap = new google.maps.visualization.HeatmapLayer({
-	          data: arLatLng,
-	          map: map
-	        });
+			setTimeout(function() {
+				var heatmap = new google.maps.visualization.HeatmapLayer({
+        	data: heatMapData
+      	});
+				heatmap.setMap(map);
+			}, 0);
 		});
   }
 });
+
 
 ccApp.controller('DonationController', function($scope, $firebaseArray) {
 	var list = new $firebaseArray(donationsRef);
@@ -149,11 +167,20 @@ ccApp.controller('EmergencyContactController', function($scope) {
 
 });
 
-ccApp.controller('ReportsController', function($scope, $firebaseArray) {
+ccApp.controller('TimelineController', function($scope, $firebaseArray) {
 	$scope.reports = $firebaseArray(reportsRef);
 	$scope.rep_count = 0;
+	$scope.images = {};
 
 	reportsRef.on('child_added', function(snapshot) {
 		$scope.rep_count += 1;
+		var imgRef = imageStorageRef.child(snapshot.key + '.png');
+
+		if ( snapshot.val().isImagePresent ) {
+			var imgRef = imageStorageRef.child(snapshot.key + '.png');
+			imgRef.getDownloadURL().then(function(url) {
+				$('#' + snapshot.key).attr("src", url);
+			});
+		}
 	});
 });
